@@ -1,0 +1,70 @@
+docker pull node скачать из hub.docker.com образ node
+
+docker images | docker image ls существующие образы в системе
+
+создаем Dockerfile-файл без расширения
+	FROM node
+    WORKDIR /app
+    COPY . . (из директории с Dockerfile положить все файлы в корень или в workdir если есть)
+    RUN npm install установка nmp
+    ENV PORT 3000
+    EXPOSE $PORT используем 3000 порт (не обязательно)
+    VOLUMES [ "/app/data" ]
+    CMD ["node", "app.js"]
+
+docker build . собрать образ из директории, где лежит Dockerfile
+    доп.параметры:
+	-t <'image name'>:<version> дать имя создаваемому образу и версию
+	--env-file ./config/.env подцепить конфигурацию с переменными к контейнеру из файла .env в папке config
+	-v <'name volume'>:/app/data присвоение имени и подключение вольюмов
+	пример: docker build -t name:last_version .
+
+docker ps список запущенных контейнеров
+	доп.параметры:
+	-a список из всех контейнеров
+
+docker run <'image ID'> запустить контейнер
+	доп.параметры:
+	-it интерактивный режим
+    -d запустить контейнер в фоновом режиме
+    -p 3000:3000 <локальный порт>:<порт внутри контейнера>
+    --name <'имя'> задать имя контейнеру
+    --rm автоматическое удаление контейнера после остановки
+    пример: docker run -d -p 3000:3000 --name APP --rm <'image ID'>
+
+docker stop <'container ID or name'> остановить контейнер
+
+docker start <'container ID or name'> запустить контейнер в фоновом режиме
+
+docker rm <'container ID'> удалить контейнер
+
+docker rmi <'image ID'> удалить образ
+
+docker container prune удалить все остановленные контейнеры
+
+docker image prune удалить все неиспользуемые образы
+
+docker attach <'container ID or name'> перейти в контейнер
+
+docker logs <'container ID or name'> что выводилось за все время работы контейнера
+
+docker tag <'текущее имя образа'> <'новое имя образа'> переименовать образ
+
+docker push <'name'> пуш на docker.hub (имя образа должно быть вида: логин/имя_образа, например muhycspb/APP)
+
+создаем .dockerignore прописываем что не надо добавлять в образ, аналогично git
+
+создаем Makefile
+    run:
+        docker run -d -p 3000:3000 --env-file ./config/.env --name APP --rm APP APP:env    
+    stop:
+        docker stop APP
+    
+запускаем make
+    make run
+    
+docker volume список вольюмов
+
+docker volume rm <'name volume'> удалить конкретный вольюм
+docker volume prune удалить все вольюмы
+docker volume create logs создать вольюм logs
